@@ -126,22 +126,39 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Form submission
-    const contactForm = document.querySelector('.contact-form');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-            
-            // Here you would typically send the data to a server
-            console.log('Form submitted:', data);
-            
-            // Show success message
-            alert('Thank you for your message! I will get back to you soon.');
-            this.reset();
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form values
+        const formData = {
+            name: this.name.value,
+            email: this.email.value,
+            message: this.message.value
+        };
+    
+        // Send to backend (see step 3)
+        sendEmail(formData);
+        
+        // Show confirmation
+        alert("Message sent successfully!");
+        this.reset();
+    });
+    
+    function sendEmail(data) {
+        // You have 3 options here:
+        // Option 1: Formspree (Free, no backend needed)
+        fetch("https://formspree.io/f/xdkelqwb", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
         });
+        
+        // Option 2: EmailJS (Free tier)
+        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', data);
+        
+        // Option 3: Custom backend (Node.js/PHP)
     }
 });
 
