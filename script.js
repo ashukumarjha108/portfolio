@@ -129,39 +129,43 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('contactForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Get form values
-        const formData = {
-            name: this.name.value,
-            email: this.email.value,
-            message: this.message.value
-        };
-    
-        // Send to backend (see step 3)
-        sendEmail(formData);
+        const form = e.target;
+        const submitButton = form.querySelector('button[type="submit"]');
+        const statusElement = document.getElementById('form-status');
         
-        // Show confirmation
-        alert("Message sent successfully!");
-        this.reset();
-    });
-    
-    function sendEmail(data) {
-        // You have 3 options here:
-        // Option 1: Formspree (Free, no backend needed)
-        fetch("https://formspree.io/f/xdkelqwb", {
+        // Change button text and disable during submission
+        submitButton.disabled = true;
+        submitButton.textContent = 'Sending...';
+        statusElement.textContent = '';
+        statusElement.style.color = '';
+        
+        fetch(form.action, {
             method: 'POST',
+            body: new FormData(form),
             headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                statusElement.textContent = 'Message sent successfully!';
+                statusElement.style.color = '#4CAF50';
+                form.reset();
+            } else {
+                throw new Error('Form submission failed');
+            }
+        })
+        .catch(error => {
+            statusElement.textContent = 'Error sending message. Please try again.';
+            statusElement.style.color = '#F44336';
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Send Message';
         });
-        
-        // Option 2: EmailJS (Free tier)
-        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', data);
-        
-        // Option 3: Custom backend (Node.js/PHP)
-    }
+    });
 });
-
 // Project page specific functionality
 document.addEventListener("DOMContentLoaded", function () {
     // Open project link
